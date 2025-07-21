@@ -1,21 +1,18 @@
-from sys import argv
 import fitz
 import streamlit as st
 
-def count_words(upload_pdf, first_page, last_page):
-
-    reader = fitz.open(upload_pdf)
+def count_words(pdf_bytes, first_page, last_page):
+    reader = fitz.open(stream=pdf_bytes, filetype="pdf")
 
     content = ""
-
-    page_number = 1
-    for page in reader.pages:
-        if page_number >= int(first_page) & page_number <= int(last_page):
+    for page_number, page in enumerate(reader.pages, start=1):
+        if int(first_page) <= page_number <= int(last_page):
             content += page.get_text()
-        page_number += 1
-    # Remove multiple spaces and newlines
+
+    # Clean up whitespac
     content = " ".join(content.split())
-    return len(content)
+
+    return len(content.split())
 
 st.title("PDF Word Counter")
 st.write("Laden Sie eine PDF-Datei hoch, um die Anzahl der Wörter zu zählen.")
@@ -23,7 +20,8 @@ st.write("Laden Sie eine PDF-Datei hoch, um die Anzahl der Wörter zu zählen.")
 uploaded_file = st.file_uploader("Wählen Sie eine PDF-Datei aus", type="pdf")
 
 if uploaded_file is not None:
-    reader = fitz.open(uploaded_file)
+    pdf_bytes = uploaded_file.read()  # Read the file ONCE
+    reader = fitz.open(stream=pdf_bytes, filetype="pdf")
     total_pages = len(reader.pages)
     st.write(f"Die PDF-Datei hat insgesamt {total_pages} Seiten.")
 
@@ -37,5 +35,5 @@ if uploaded_file is not None:
     first_page, last_page = page_range
 
     if st.button("Wörter zählen"):
-        words = count_words(uploaded_file, first_page, last_page)
+        words = count_words(pdf_bytes, first_page, last_page)
         st.write(f"Die Arbeit enthält {words} Wörter.")
