@@ -69,7 +69,6 @@ if uploaded_file is not None:
     if st.button("Count Words"):
         words = count_words(pdf_bytes, first_page, last_page)
         st.write(f"The document contains {words} words.")
-        st.balloons()
 
 if __name__ == "__main__":
     main()
