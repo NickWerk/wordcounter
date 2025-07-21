@@ -1,18 +1,30 @@
-import fitz
 import streamlit as st
+import re
+import fitz
 
 def count_words(pdf_bytes, first_page, last_page):
     reader = fitz.open(stream=pdf_bytes, filetype="pdf")
-
     content = ""
+
     for page_number in range(reader.page_count):
         if int(first_page) <= page_number + 1 <= int(last_page):
             page = reader.load_page(page_number)
-            content += page.get_text()
+            text = page.get_text("text")
+            # Remove headers/footers - example: remove first and last line
+            lines = text.split('\n')
+            if len(lines) > 2:
+                lines = lines[1:-1]
+            page_text = " ".join(lines)
+            # Fix hyphenated line breaks
+            page_text = re.sub(r'-\s*\n\s*', '', page_text)
+            content += page_text + " "
 
-    # Clean up whitespac
-    content = " ".join(content.split())
-    return len(content.split())
+    # Normalize spaces
+    content = re.sub(r'\s+', ' ', content).strip()
+    # Count words with regex
+    words = re.findall(r'\b\w+\b', content)
+    return len(words)
+
 
 st.title("PDF Word Counter")
 st.write("Laden Sie eine PDF-Datei hoch, um die Anzahl der Wörter zu zählen.")
