@@ -1,6 +1,10 @@
 import fitz
 import streamlit as st
 
+def main():
+    count_words()
+    streamlit_app_config()
+
 def count_words(pdf_bytes, first_page, last_page):
     reader = fitz.open(stream=pdf_bytes, filetype="pdf")
 
@@ -10,30 +14,62 @@ def count_words(pdf_bytes, first_page, last_page):
             page = reader.load_page(page_number)
             content += page.get_text()
 
-    # Clean up whitespac
+    # Clean up whitespace
     content = " ".join(content.split())
     return len(content.split())
 
-st.title("PDF Word Counter")
-st.write("Laden Sie eine PDF-Datei hoch, um die Anzahl der Wörter zu zählen.")
+def streamlit_app_config():
 
-uploaded_file = st.file_uploader("Wählen Sie eine PDF-Datei aus", type="pdf")
+    st.set_page_config(page_title="PDF Word Counter", layout="wide")
+    st.title("PDF Word Counter")
+    st.write("Upload a PDF file to count the number of words.")
+
+    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+
+    if uploaded_file is not None:
+        pdf_bytes = uploaded_file.read()  # Read the file
+        reader = fitz.open(stream=pdf_bytes, filetype="pdf")
+        total_pages = reader.page_count
+        st.write(f"The PDF file has a total of {total_pages} pages.")
+
+        # Use a range slider to select the page range
+        page_range = st.slider(
+            "Select the page range",
+            min_value=1,
+            max_value=total_pages,
+            value=(1, total_pages),
+        )
+        first_page, last_page = page_range
+
+        if st.button("Count Words"):
+            words = count_words(pdf_bytes, first_page, last_page)
+            st.write(f"The document contains {words} words.")
+            st.balloons()
+
+st.title("PDF Word Counter")
+st.write("Upload a PDF file to count the number of words.")
+
+uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
 if uploaded_file is not None:
     pdf_bytes = uploaded_file.read()  # Read the file
     reader = fitz.open(stream=pdf_bytes, filetype="pdf")
     total_pages = reader.page_count
-    st.write(f"Die PDF-Datei hat insgesamt {total_pages} Seiten.")
+    st.write(f"The PDF file has a total of {total_pages} pages.")
 
     # Use a range slider to select the page range
     page_range = st.slider(
-        "Wählen Sie den Seitenbereich aus",
+        "Select the page range",
         min_value=1,
         max_value=total_pages,
         value=(1, total_pages),
     )
     first_page, last_page = page_range
 
-    if st.button("Wörter zählen"):
+    if st.button("Count Words"):
         words = count_words(pdf_bytes, first_page, last_page)
-        st.write(f"Die Arbeit enthält {words} Wörter.")
+        st.write(f"The document contains {words} words.")
+        st.balloons()
+
+if __name__ == "__main__":
+    main()
