@@ -6,9 +6,9 @@ def count_words(pdf_bytes, first_page, last_page):
 
     content = ""
     for page_number in range(reader.page_count):
-    if int(first_page) <= page_number + 1 <= int(last_page):
-        page = reader.load_page(page_number)
-        content += page.get_text()
+        if int(first_page) <= page_number + 1 <= int(last_page):
+            page = reader.load_page(page_number)
+            content += page.get_text()
 
     # Clean up whitespac
     content = " ".join(content.split())
