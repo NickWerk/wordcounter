@@ -41,7 +41,3 @@ if uploaded_file is not None:
     if st.button("Wörter zählen"):
         words = count_words(uploaded_file, first_page, last_page)
         st.write(f"Die Arbeit enthält {words} Wörter.")
-
-if __name__ == "__main__":
-    count_words()
-
