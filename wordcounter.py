@@ -2,7 +2,6 @@ import fitz
 import streamlit as st
 
 def main():
-    count_words()
     streamlit_app_config()
 
 def count_words(pdf_bytes, first_page, last_page):
